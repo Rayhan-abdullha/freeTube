@@ -8,7 +8,7 @@ interface AuthorizationRequest extends Request {
   user?: User;
 }
 
-const authorization = (permission: string) => {
+const authorization = (permissions: string[]) => {
   return async (req: AuthorizationRequest, _res: Response, next: NextFunction): Promise<void> => {
     const userId = req.user?.id; 
 
@@ -18,8 +18,7 @@ const authorization = (permission: string) => {
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { role: { include: { permissions: true } } }
+      where: { id: userId }
     });
 
     if (!user) {
@@ -27,7 +26,7 @@ const authorization = (permission: string) => {
       return;
     }
 
-    const hasPermission = user?.role.permissions.some((perm) => perm.name === permission);
+    const hasPermission = permissions.some(permission => user.role === permission);
 
     if (hasPermission) {
       next();

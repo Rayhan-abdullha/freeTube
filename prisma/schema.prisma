@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" // Replace with your database provider
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -12,7 +12,7 @@ model User {
   name           String
   email          String        @unique
   password       String
-  role           Role          @default(STUDENT)
+  role           Role          @default(USER)
   profilePicture String?
   videos         Video[]       @relation("UploadedVideos")
   coursesCreated Course[]      @relation("CreatedCourses")
@@ -37,16 +37,24 @@ model Course {
   updatedAt   DateTime      @updatedAt
 }
 
+enum Uploader {
+  SYSTEM
+  USER
+}
+enum UploadBy {
+  SYSTEM
+  USER
+}
 model Video {
   id          String   @id @default(uuid())
   title       String
   url         String
   category    String
-  thumbnail   String?
   description String?
-  duration    Int
-  uploadedBy  User     @relation("UploadedVideos", fields: [uploadedById], references: [id])
-  uploadedById String
+  tags        String[]
+  userId      String?
+  User        User?    @relation("UploadedVideos", fields: [userId], references: [id])
+  uploadBy    UploadBy @default(SYSTEM)
   comments    Comment[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -85,6 +93,7 @@ model Review {
 }
 
 enum Role {
-  STUDENT
+  PUBLIC
+  USER
   ADMIN
 }

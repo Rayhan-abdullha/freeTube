@@ -1,18 +1,18 @@
 import express from "express";
-import authController from "./auth.controller";
-import validateRequest from "../../middleware/validateRequest";
+import {authController} from "./auth.controller";
 import {registerSchema, loginSchema} from "./auth.schema";
+import { middleware } from "../../middleware";
 
 const router = express.Router();
 
 router.post(
     "/register",
-    validateRequest(registerSchema),
+    middleware.validateRequest(registerSchema),
   authController.register
 );
 router.post(
     "/login",
-  validateRequest(loginSchema),
+  middleware.validateRequest(loginSchema),
   authController.login
 );
 router.post("/refresh-token", authController.refreshToken);

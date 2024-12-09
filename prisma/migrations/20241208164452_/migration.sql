@@ -1,5 +1,11 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('STUDENT', 'ADMIN');
+CREATE TYPE "Uploader" AS ENUM ('SYSTEM', 'USER');
+
+-- CreateEnum
+CREATE TYPE "UploadBy" AS ENUM ('SYSTEM', 'USER');
+
+-- CreateEnum
+CREATE TYPE "Role" AS ENUM ('PUBLIC', 'USER', 'ADMIN');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -7,7 +13,7 @@ CREATE TABLE "User" (
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "role" "Role" NOT NULL DEFAULT 'STUDENT',
+    "role" "Role" NOT NULL DEFAULT 'USER',
     "profilePicture" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -35,10 +41,10 @@ CREATE TABLE "Video" (
     "title" TEXT NOT NULL,
     "url" TEXT NOT NULL,
     "category" TEXT NOT NULL,
-    "thumbnail" TEXT,
     "description" TEXT,
-    "duration" INTEGER NOT NULL,
-    "uploadedById" TEXT NOT NULL,
+    "tags" TEXT[],
+    "userId" TEXT,
+    "uploadBy" "UploadBy" NOT NULL DEFAULT 'SYSTEM',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -87,7 +93,7 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 ALTER TABLE "Course" ADD CONSTRAINT "Course_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Video" ADD CONSTRAINT "Video_uploadedById_fkey" FOREIGN KEY ("uploadedById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Video" ADD CONSTRAINT "Video_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Enrollment" ADD CONSTRAINT "Enrollment_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

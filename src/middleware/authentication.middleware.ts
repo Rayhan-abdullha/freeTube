@@ -2,19 +2,15 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { PrismaClient, User } from '@prisma/client';
 import CustomError from '../lib/Error';
-import lib from '../lib';
 
 const prisma = new PrismaClient();
 
-interface AuthenticateRequest extends Request {
-  headers: {
-    authorization?: string;
-  };
+type CustomRequest = Request & {
   user?: User;
-}
+};
 
 const authenticate = async (
-  req: AuthenticateRequest,
+  req: CustomRequest,
   _res: Response,
   next: NextFunction
 ): Promise<void > => {
@@ -34,13 +30,13 @@ const authenticate = async (
     });
 
     if (!user) {
-      next(lib.CustomError.unauthorized());
+      next(CustomError.unauthorized());
       return;
     }
-    req.user = user;
+    req.user = user as User
     next();
   } catch (error) {
-    next(lib.CustomError.unauthorized());
+    next(CustomError.unauthorized());
     return;
   }
 };
