@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://user_example:password_example@localhost:5432/example_db?schema=public"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id             String        @id @default(uuid())
+  name           String
+  email          String        @unique
+  password       String
+  role           Role          @default(USER)
+  profilePicture String?
+  videos         Video[]       @relation("UploadedVideos")
+  enrollments    Enrollment[]
+  reviews        Review[]
+  comments       Comment[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Course {
+  id          String        @id @default(uuid())
+  title       String
+  description String?
+  category    String
+  thumbnail   String?
+  created String        @default("PLATFORM")
+  enrollments Enrollment[]
+  reviews     Review[]
+  enrolled    Int          @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum UploadBy {
+  SYSTEM
+  USER
+}
+model Video {
+  id          String   @id @default(uuid())
+  title       String
+  url         String
+  category    String
+  description String?
+  tags        String[]
+  userId      String?
+  User        User?    @relation("UploadedVideos", fields: [userId], references: [id])
+  uploadBy    UploadBy @default(SYSTEM)
+  comments    Comment[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Enrollment {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  courseId    String
+  course      Course    @relation(fields: [courseId], references: [id])
+  completed   Boolean   @default(false)
+  enrolledAt  DateTime  @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Comment {
+  id       String   @id @default(uuid())
+  video    Video    @relation(fields: [videoId], references: [id])
+  videoId  String
+  user     User     @relation(fields: [userId], references: [id])
+  userId   String
+  comment  String
+  timestamp DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  review    String
+  rating    Int      
+  timestamp DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+model Blog {
+  id          String   @id @default(uuid())
+  title       String
+  coverImage  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  Section Section[] @relation(name: "BlogSections")
+}
+model Section {
+  id       String  @id @default(uuid())
+  blogId   String
+  type     SectionType
+  content  String
+  blog     Blog    @relation(fields: [blogId], references: [id], name: "BlogSections")
+}
+enum SectionType {
+  HEADING
+  SUBHEADING
+  PARAGRAPH
+  CODE
+  IMAGE
+  VIDEO
+}
